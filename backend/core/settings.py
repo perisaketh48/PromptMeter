@@ -1,5 +1,5 @@
 """
-Django settings for the AI Token & Cost Intelligence Platform.
+Django settings for the PromptMeter.
 
 Configuration is environment-driven; see backend/.env.example for the
 full set of supported variables. No secret values live in this file.
@@ -205,7 +205,7 @@ SIMPLE_JWT = {
 # OpenAPI schema
 # ---------------------------------------------------------------------------
 SPECTACULAR_SETTINGS = {
-    "TITLE": "AI Token & Cost Intelligence Platform API",
+    "TITLE": "PromptMeter API",
     "DESCRIPTION": (
         "Token estimation, multi-provider LLM cost calculation, "
         "subscription tracking, usage analytics, and an AI API proxy."

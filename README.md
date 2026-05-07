@@ -1,4 +1,4 @@
-# AI Token & Cost Intelligence Platform
+# PromptMeter
 
 A full-stack monorepo for token estimation, multi-provider LLM cost
 calculation, an AI API proxy, subscription tracking, usage analytics,
@@ -16,18 +16,18 @@ budget alerts, and prompt cost prediction.
 
 ## Features
 
-| Area | Features |
-|---|---|
-| Auth | Email + password, JWT login/refresh, password change, profile |
-| Providers | Provider/AIModel catalog (admin write, user read), capabilities, filtering, pagination |
-| Estimator | tiktoken + heuristic strategies, cost calculation, save-to-history, history list |
-| Billing | Plan catalog, lazy-create FREE subscription, plan switching, cancel, invoices, quota status |
-| Usage | Append-only `UsageRecord` ledger; summary, by-day, by-model, CSV export, filters |
-| Budgets | Period-aware (daily / weekly / monthly), per-model scoping, 50/80/100% thresholds |
-| Notifications | In-app, mark-read, mark-all-read, unread filter |
-| Proxy | OpenAI / Anthropic / Gemini service classes with retry + timeout, encrypted credentials, usage logging, budget re-evaluation |
-| Admin | User management, plan override, system stats, provider/model CRUD, feedback triage |
-| Frontend | Dashboard (stat cards, donut, line, bar, recent activity, alerts, skeletons); Estimator (debounced live estimate, history); Subscription (plan cards, quota bars, invoices); Usage (filters, pagination, CSV); Budgets (CRUD, alerts, notifications); Credentials (encrypted at rest); Admin pages (overview, users, providers, models, feedback); monochromatic light + dark mode; mobile bottom nav; desktop sidebar |
+| Area          | Features                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth          | Email + password, JWT login/refresh, password change, profile                                                                                                                                                                                                                                                                                                                                                          |
+| Providers     | Provider/AIModel catalog (admin write, user read), capabilities, filtering, pagination                                                                                                                                                                                                                                                                                                                                 |
+| Estimator     | tiktoken + heuristic strategies, cost calculation, save-to-history, history list                                                                                                                                                                                                                                                                                                                                       |
+| Billing       | Plan catalog, lazy-create FREE subscription, plan switching, cancel, invoices, quota status                                                                                                                                                                                                                                                                                                                            |
+| Usage         | Append-only `UsageRecord` ledger; summary, by-day, by-model, CSV export, filters                                                                                                                                                                                                                                                                                                                                       |
+| Budgets       | Period-aware (daily / weekly / monthly), per-model scoping, 50/80/100% thresholds                                                                                                                                                                                                                                                                                                                                      |
+| Notifications | In-app, mark-read, mark-all-read, unread filter                                                                                                                                                                                                                                                                                                                                                                        |
+| Proxy         | OpenAI / Anthropic / Gemini service classes with retry + timeout, encrypted credentials, usage logging, budget re-evaluation                                                                                                                                                                                                                                                                                           |
+| Admin         | User management, plan override, system stats, provider/model CRUD, feedback triage                                                                                                                                                                                                                                                                                                                                     |
+| Frontend      | Dashboard (stat cards, donut, line, bar, recent activity, alerts, skeletons); Estimator (debounced live estimate, history); Subscription (plan cards, quota bars, invoices); Usage (filters, pagination, CSV); Budgets (CRUD, alerts, notifications); Credentials (encrypted at rest); Admin pages (overview, users, providers, models, feedback); monochromatic light + dark mode; mobile bottom nav; desktop sidebar |
 
 ## Repository Layout
 
@@ -73,12 +73,12 @@ python -c "from cryptography.fernet import Fernet; print('FERNET_KEY=' + Fernet.
 docker compose up --build
 ```
 
-| URL                              | Description                |
-|----------------------------------|----------------------------|
-| http://localhost:8080/           | React SPA                  |
-| http://localhost:8000/api/v1/    | API root                   |
-| http://localhost:8000/api/v1/docs/ | Swagger UI               |
-| http://localhost:8000/admin/     | Django admin               |
+| URL                                | Description  |
+| ---------------------------------- | ------------ |
+| http://localhost:8080/             | React SPA    |
+| http://localhost:8000/api/v1/      | API root     |
+| http://localhost:8000/api/v1/docs/ | Swagger UI   |
+| http://localhost:8000/admin/       | Django admin |
 
 Bootstrap an admin user:
 
