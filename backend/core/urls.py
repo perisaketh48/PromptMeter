@@ -20,9 +20,9 @@ api_v1_patterns = [
     path("health/", health, name="health"),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
-        "docs/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
-        name="swagger-ui",
+    "docs/",
+    SpectacularSwaggerView.as_view(url_name="api_v1:schema"),
+    name="swagger-ui",
     ),
     path("auth/", include("apps.accounts.urls", namespace="accounts")),
     path("catalog/", include("apps.providers.urls", namespace="providers")),
