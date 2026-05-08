@@ -27,6 +27,15 @@ if env_file.exists():
     environ.Env.read_env(env_file)
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://promptmeter.onrender.com",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://promptmeter.onrender.com",
+]
+
+
 # ---------------------------------------------------------------------------
 # Core
 # ---------------------------------------------------------------------------
