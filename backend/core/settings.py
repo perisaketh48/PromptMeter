@@ -29,12 +29,12 @@ if env_file.exists():
 
 CSRF_TRUSTED_ORIGINS = [
     "https://promptmeter.onrender.com",
-    "https://prompt-meter.vercel.app/",
+    "https://prompt-meter.vercel.app",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "https://promptmeter.onrender.com",
-    "https://prompt-meter.vercel.app/",
+    "https://prompt-meter.vercel.app",
 ]
 
 
@@ -83,6 +83,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 AUTH_USER_MODEL = "accounts.User"
 
+CORS_ALLOW_ALL_ORIGINS = True
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
