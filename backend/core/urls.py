@@ -15,6 +15,7 @@ from apps.admin_panel.views import FeedbackCreateView
 def health(_request):
     return JsonResponse({"status": "ok"})
 
+app_name = "api_v1"
 
 api_v1_patterns = [
     path("health/", health, name="health"),
