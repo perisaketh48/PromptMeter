@@ -33,6 +33,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 CORS_ALLOWED_ORIGINS = [
     "https://promptmeter.onrender.com",
+    "https://prompt-meter.vercel.app/",
 ]
 
 
