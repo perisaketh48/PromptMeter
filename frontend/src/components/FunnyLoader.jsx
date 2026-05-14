@@ -21,95 +21,62 @@ const messages = [
   "🎨 Painting the UI...",
 ];
 
-const chipDefs = [
-  {
-    at: 30,
-    label: "⚡ Server motivation: rising",
-    color: "#92400e",
-    bg: "#fef3c7",
-  },
-  { at: 55, label: "🐹 Hamster RPM stable", color: "#065f46", bg: "#d1fae5" },
-  { at: 75, label: "🚀 Backend responding", color: "#1e40af", bg: "#dbeafe" },
+const quips = [
+  { min: 0, text: "Render free tier moment 💀" },
+  { min: 40, text: '"Good things take time..."' },
+  { min: 70, text: '"Still here? We like your patience ❤️"' },
+  { min: 88, text: '"Almost done, we promise 🚀"' },
 ];
 
 const styles = `
-  @keyframes fl-barShimmer {
+  @keyframes fl-shimmer {
     0%   { background-position: -200% center; }
     100% { background-position:  200% center; }
   }
   @keyframes fl-float {
     0%, 100% { transform: translateY(0px); }
-    50%       { transform: translateY(-6px); }
+    50%       { transform: translateY(-5px); }
   }
-  @keyframes fl-fadeSlide {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fl-dotBounce {
-    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  @keyframes fl-bounce {
+    0%, 80%, 100% { transform: scale(0.5); opacity: 0.3; }
     40%           { transform: scale(1);   opacity: 1;   }
   }
-  .fl-dot { animation: fl-dotBounce 1.2s ease-in-out infinite; }
+  .fl-dot { animation: fl-bounce 1.2s ease-in-out infinite; }
   .fl-dot:nth-child(2) { animation-delay: 0.2s; }
   .fl-dot:nth-child(3) { animation-delay: 0.4s; }
   .fl-coffee { animation: fl-float 2.5s ease-in-out infinite; display: inline-block; }
-  .fl-chip   { animation: fl-fadeSlide 0.4s ease; }
-  .fl-line   { animation: fl-fadeSlide 0.35s ease; }
 `;
 
 export default function FunnyLoader() {
   const [progress, setProgress] = useState(0);
-  const [termLines, setTermLines] = useState([
-    { text: "$ initializing app...", color: "#6b7280" },
-  ]);
-  const [chips, setChips] = useState([]);
-  const [quip, setQuip] = useState("$ initializing app...");
-  const [currentMessage, setCurrentMessage] = useState("");
-  const addedChipsRef = useRef(new Set());
+  const [randomMessage, setRandomMessage] = useState("");
+  const [quip, setQuip] = useState(quips[0].text);
 
+  /* pick ONE random message on mount */
   useEffect(() => {
-    const randomIdx = Math.floor(Math.random() * messages.length);
-    setCurrentMessage(messages[randomIdx]);
+    const idx = Math.floor(Math.random() * messages.length);
+    setRandomMessage(messages[idx]);
   }, []);
 
+  /* progress ticker */
   useEffect(() => {
     const startTime = Date.now();
     const minDuration = 4000;
-
     const id = setInterval(() => {
       const elapsed = Date.now() - startTime;
-      const targetProgress = (elapsed / minDuration) * 100;
-      setProgress(Math.min(targetProgress, 95));
-
+      const target = (elapsed / minDuration) * 100;
+      const next = Math.min(target, 95);
+      setProgress(next);
+      const active = [...quips].reverse().find((q) => next >= q.min);
+      if (active) setQuip(active.text);
       if (elapsed >= minDuration) {
         clearInterval(id);
         setProgress(100);
+        setQuip(quips[quips.length - 1].text);
       }
     }, 100);
     return () => clearInterval(id);
   }, []);
-
-  useEffect(() => {
-    if (!currentMessage) return;
-    setTermLines([
-      { text: "$ initializing app...", color: "#6b7280" },
-      { text: currentMessage, color: "#e2e8f0" },
-    ]);
-  }, [currentMessage]);
-
-  useEffect(() => {
-    if (progress < 20) setQuip("$ initializing app...");
-    else if (progress < 50) setQuip('"Good things take time..."');
-    else if (progress < 80) setQuip('"Still here? We like your patience ❤️"');
-    else setQuip('"Plot twist: we\'re actually almost done 🚀"');
-
-    chipDefs.forEach((def) => {
-      if (progress > def.at && !addedChipsRef.current.has(def.at)) {
-        addedChipsRef.current.add(def.at);
-        setChips((prev) => [...prev, def]);
-      }
-    });
-  }, [progress]);
 
   const pct = Math.floor(progress);
 
@@ -119,21 +86,11 @@ export default function FunnyLoader() {
 
       <div style={s.page}>
         <div style={s.card}>
+          {/* title bar */}
           <div style={s.titleBar}>
-            <div style={s.dots}>
-              <span
-                className="fl-dot"
-                style={{ ...s.dot, background: "#ef4444" }}
-              />
-              <span
-                className="fl-dot"
-                style={{ ...s.dot, background: "#facc15" }}
-              />
-              <span
-                className="fl-dot"
-                style={{ ...s.dot, background: "#22c55e" }}
-              />
-            </div>
+            <span style={{ ...s.trafficDot, background: "#ef4444" }} />
+            <span style={{ ...s.trafficDot, background: "#facc15" }} />
+            <span style={{ ...s.trafficDot, background: "#22c55e" }} />
             <span style={s.barLabel}>server-startup.sh</span>
             <div style={s.liveDots}>
               <span className="fl-dot" style={s.liveDot} />
@@ -142,75 +99,36 @@ export default function FunnyLoader() {
             </div>
           </div>
 
+          {/* body */}
           <div style={s.body}>
-            <div style={s.heroRow}>
-              <span className="fl-coffee" style={{ fontSize: 38 }}>
+            {/* centered hero */}
+            <div style={s.hero}>
+              <span className="fl-coffee" style={{ fontSize: 40 }}>
                 ☕
               </span>
-              <div>
-                <p style={s.heroTitle}>Waking up sleepy servers...</p>
-                <p style={s.heroSub}>
-                  Our free cloud servers go into deep sleep to save money.
-                  <br />
-                  We're currently bribing them with coffee.
-                </p>
-              </div>
+              <p style={s.heroTitle}>Waking up sleepy servers...</p>
+              <p style={s.heroSub}>
+                Free tier cold start — bribing servers with coffee.
+              </p>
             </div>
 
-            <div style={s.divider} />
-
-            <div style={s.terminal}>
-              <div style={s.termHeader}>OUTPUT</div>
-              {termLines.map((line, i) => (
-                <div
-                  key={i}
-                  className="fl-line"
-                  style={{
-                    color: line.color || "#e2e8f0",
-                    lineHeight: 1.7,
-                    fontSize: 13,
-                  }}
-                >
-                  {line.text}
-                </div>
-              ))}
+            {/* single random message — the ONE sentence */}
+            <div style={s.msgBox}>
+              <span style={s.prompt}>$</span>
+              <span style={s.msgText}>{randomMessage}</span>
             </div>
 
-            <div style={{ marginTop: 20 }}>
-              <div style={s.progressMeta}>
-                <span style={s.progressLabel}>motivation_level</span>
-                <span style={s.progressPct}>{pct}%</span>
-              </div>
-              <div style={s.track}>
-                <div
-                  style={{
-                    ...s.fill,
-                    width: `${progress}%`,
-                  }}
-                />
-              </div>
+            {/* progress bar */}
+            <div style={s.progressMeta}>
+              <span style={s.progressLabel}>motivation_level</span>
+              <span style={s.progressPct}>{pct}%</span>
+            </div>
+            <div style={s.track}>
+              <div style={{ ...s.fill, width: `${progress}%` }} />
             </div>
 
-            {chips.length > 0 && (
-              <div style={s.chipRow}>
-                {chips.map((c, i) => (
-                  <span
-                    key={i}
-                    className="fl-chip"
-                    style={{ ...s.chip, background: c.bg, color: c.color }}
-                  >
-                    {c.label}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <div style={s.divider} />
-
-            <div style={s.footer}>
-              <span style={s.quip}>{quip}</span>
-              <span style={s.footerRight}>Render free tier moment 💀</span>
-            </div>
+            {/* single footer quip */}
+            <p style={s.quip}>{quip}</p>
           </div>
         </div>
       </div>
@@ -231,112 +149,115 @@ const s = {
   },
   card: {
     width: "90%",
-    maxWidth: 520,
+    maxWidth: 420,
     background: "rgba(255,255,255,0.04)",
     border: "1px solid rgba(255,255,255,0.08)",
-    borderRadius: 20,
+    borderRadius: 18,
     overflow: "hidden",
   },
+
+  /* title bar */
   titleBar: {
-    background: "rgba(255,255,255,0.03)",
-    borderBottom: "1px solid rgba(255,255,255,0.07)",
-    padding: "13px 18px",
+    padding: "11px 16px",
+    borderBottom: "1px solid rgba(255,255,255,0.06)",
     display: "flex",
     alignItems: "center",
-    gap: 10,
+    gap: 6,
   },
-  dots: { display: "flex", gap: 6 },
-  dot: { width: 11, height: 11, borderRadius: "50%", display: "inline-block" },
-  barLabel: { fontSize: 12, color: "#64748b", fontFamily: "monospace" },
+  trafficDot: {
+    width: 10,
+    height: 10,
+    borderRadius: "50%",
+    display: "inline-block",
+  },
+  barLabel: {
+    fontSize: 11,
+    color: "#475569",
+    fontFamily: "monospace",
+    marginLeft: 6,
+  },
   liveDots: {
     marginLeft: "auto",
     display: "flex",
-    gap: 4,
+    gap: 3,
     alignItems: "center",
   },
   liveDot: {
-    width: 6,
-    height: 6,
+    width: 5,
+    height: 5,
     borderRadius: "50%",
     background: "#f97316",
     display: "inline-block",
   },
 
-  body: { padding: "26px 28px 24px" },
+  /* body */
+  body: { padding: "24px 22px 20px" },
 
-  heroRow: {
-    display: "flex",
-    alignItems: "flex-start",
-    gap: 14,
-    marginBottom: 6,
-  },
+  /* hero — centered, compact */
+  hero: { textAlign: "center", marginBottom: 18 },
   heroTitle: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: 600,
     color: "#f8fafc",
-    margin: "0 0 4px",
+    margin: "10px 0 4px",
   },
-  heroSub: { fontSize: 13, color: "#94a3b8", margin: 0, lineHeight: 1.65 },
+  heroSub: { fontSize: 12, color: "#64748b", margin: 0 },
 
-  divider: { borderTop: "1px solid rgba(255,255,255,0.07)", margin: "20px 0" },
-
-  terminal: {
+  /* message box */
+  msgBox: {
     background: "#020617",
     border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: 12,
-    padding: "14px 16px",
-    minHeight: 110,
-    fontFamily: "monospace",
+    borderRadius: 10,
+    padding: "11px 14px",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 18,
   },
-  termHeader: {
+  prompt: {
     fontSize: 11,
     color: "#475569",
-    letterSpacing: "0.07em",
-    marginBottom: 10,
+    fontFamily: "monospace",
+    flexShrink: 0,
   },
+  msgText: { fontSize: 13, color: "#cbd5e1", fontFamily: "monospace" },
 
+  /* progress */
   progressMeta: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  progressLabel: { fontSize: 12, color: "#64748b", fontFamily: "monospace" },
+  progressLabel: { fontSize: 11, color: "#475569", fontFamily: "monospace" },
   progressPct: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 600,
     color: "#f8fafc",
     fontFamily: "monospace",
   },
   track: {
-    height: 8,
+    height: 7,
     background: "rgba(255,255,255,0.07)",
     borderRadius: 999,
     overflow: "hidden",
-    border: "1px solid rgba(255,255,255,0.06)",
+    marginBottom: 14,
   },
   fill: {
     height: "100%",
     borderRadius: 999,
     background: "linear-gradient(90deg, #f97316, #fb923c, #f97316)",
     backgroundSize: "200% 100%",
-    animation: "fl-barShimmer 2s linear infinite",
-    transition: "width 1s cubic-bezier(.4,0,.2,1)",
+    animation: "fl-shimmer 2s linear infinite",
+    transition: "width 0.3s cubic-bezier(.4,0,.2,1)",
   },
 
-  chipRow: { display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16 },
-  chip: {
+  /* quip */
+  quip: {
+    textAlign: "center",
     fontSize: 12,
-    fontWeight: 500,
-    padding: "4px 12px",
-    borderRadius: 999,
+    color: "#475569",
+    fontStyle: "italic",
+    margin: 0,
   },
-
-  footer: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  quip: { fontSize: 13, color: "#94a3b8" },
-  footerRight: { fontSize: 12, color: "#475569" },
 };
