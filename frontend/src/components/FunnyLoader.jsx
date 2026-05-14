@@ -8,6 +8,17 @@ const messages = [
   "📡 Connecting to cloud services...",
   "⚔️ Fighting Render cold starts...",
   "🚀 Almost ready...",
+  "🔄 Spinning up containers...",
+  "💾 Waking up the database...",
+  "🌐 Syncing across regions...",
+  "⚡ Optimizing performance...",
+  "🔐 Double-checking permissions...",
+  "📦 Loading dependencies...",
+  "🎯 Calibrating servers...",
+  "✨ Adding some sparkle...",
+  "🔧 Fine-tuning the API...",
+  "🎪 Setting up the circus...",
+  "🎨 Painting the UI...",
 ];
 
 const chipDefs = [
@@ -68,14 +79,9 @@ export default function FunnyLoader() {
 
   useEffect(() => {
     const id = setInterval(() => {
-      setMsgIdx((prev) => {
-        if (prev >= messages.length - 1) {
-          clearInterval(id);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 3000);
+      const randomIdx = Math.floor(Math.random() * messages.length);
+      setMsgIdx(randomIdx);
+    }, 1000);
     return () => clearInterval(id);
   }, []);
 
