@@ -1,26 +1,44 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useRef, useEffect } from "react";
 
 const LoadingContext = createContext();
+const MIN_LOADER_DURATION = 4000;
 
 export function LoadingProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [requestCount, setRequestCount] = useState(0);
+  const loaderStartTimeRef = useRef(null);
+  const hideTimeoutRef = useRef(null);
 
   const startLoading = () => {
+    if (requestCount === 0) {
+      setIsLoading(true);
+      loaderStartTimeRef.current = Date.now();
+    }
     setRequestCount((prev) => prev + 1);
-    setIsLoading(true);
   };
 
   const stopLoading = () => {
-    setRequestCount((prev) => Math.max(0, prev - 1));
+    setRequestCount((prev) => {
+      const newCount = Math.max(0, prev - 1);
+      if (newCount === 0 && loaderStartTimeRef.current) {
+        const elapsed = Date.now() - loaderStartTimeRef.current;
+        const remainingTime = Math.max(0, MIN_LOADER_DURATION - elapsed);
+
+        if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = setTimeout(() => {
+          setIsLoading(false);
+          loaderStartTimeRef.current = null;
+        }, remainingTime);
+      }
+      return newCount;
+    });
   };
 
-  // When request count reaches 0, actually stop showing the loader
-  React.useEffect(() => {
-    if (requestCount === 0) {
-      setIsLoading(false);
-    }
-  }, [requestCount]);
+  useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    };
+  }, []);
 
   return (
     <LoadingContext.Provider value={{ isLoading, startLoading, stopLoading }}>

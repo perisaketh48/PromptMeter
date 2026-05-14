@@ -59,40 +59,43 @@ const styles = `
 
 export default function FunnyLoader() {
   const [progress, setProgress] = useState(0);
-  const [msgIdx, setMsgIdx] = useState(0);
   const [termLines, setTermLines] = useState([
     { text: "$ initializing app...", color: "#6b7280" },
   ]);
   const [chips, setChips] = useState([]);
   const [quip, setQuip] = useState("$ initializing app...");
+  const [currentMessage, setCurrentMessage] = useState("");
   const addedChipsRef = useRef(new Set());
 
   useEffect(() => {
+    const randomIdx = Math.floor(Math.random() * messages.length);
+    setCurrentMessage(messages[randomIdx]);
+  }, []);
+
+  useEffect(() => {
+    const startTime = Date.now();
+    const minDuration = 4000;
+
     const id = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 95) return prev;
-        return Math.min(95, prev + Math.random() * 12);
-      });
-    }, 1200);
+      const elapsed = Date.now() - startTime;
+      const targetProgress = (elapsed / minDuration) * 100;
+      setProgress(Math.min(targetProgress, 95));
+
+      if (elapsed >= minDuration) {
+        clearInterval(id);
+        setProgress(100);
+      }
+    }, 100);
     return () => clearInterval(id);
   }, []);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      const randomIdx = Math.floor(Math.random() * messages.length);
-      setMsgIdx(randomIdx);
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const text = messages[msgIdx];
-    const color = msgIdx === messages.length - 1 ? "#22c55e" : undefined;
-    setTermLines((prev) => {
-      const next = [...prev, { text, color }];
-      return next.length > 5 ? next.slice(next.length - 5) : next;
-    });
-  }, [msgIdx]);
+    if (!currentMessage) return;
+    setTermLines([
+      { text: "$ initializing app...", color: "#6b7280" },
+      { text: currentMessage, color: "#e2e8f0" },
+    ]);
+  }, [currentMessage]);
 
   useEffect(() => {
     if (progress < 20) setQuip("$ initializing app...");
@@ -104,10 +107,6 @@ export default function FunnyLoader() {
       if (progress > def.at && !addedChipsRef.current.has(def.at)) {
         addedChipsRef.current.add(def.at);
         setChips((prev) => [...prev, def]);
-        setTermLines((prev) => {
-          const next = [...prev, { text: "→ " + def.label, color: "#f97316" }];
-          return next.length > 5 ? next.slice(next.length - 5) : next;
-        });
       }
     });
   }, [progress]);
