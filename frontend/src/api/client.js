@@ -1,9 +1,15 @@
-import axios from 'axios';
+import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+let loadingManager = { start: () => {}, stop: () => {} };
 
-const ACCESS_KEY = 'aitc.access';
-const REFRESH_KEY = 'aitc.refresh';
+export function setLoadingManager(manager) {
+  loadingManager = manager;
+}
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
+
+const ACCESS_KEY = "aitc.access";
+const REFRESH_KEY = "aitc.refresh";
 
 export const tokenStore = {
   getAccess() {
@@ -24,10 +30,11 @@ export const tokenStore = {
 
 export const api = axios.create({
   baseURL: BASE_URL,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 
 api.interceptors.request.use((config) => {
+  loadingManager.start();
   const access = tokenStore.getAccess();
   if (access && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${access}`;
@@ -39,32 +46,42 @@ let refreshPromise = null;
 
 async function refreshAccess() {
   const refresh = tokenStore.getRefresh();
-  if (!refresh) throw new Error('no refresh token');
+  if (!refresh) throw new Error("no refresh token");
   const { data } = await axios.post(`${BASE_URL}/auth/refresh/`, { refresh });
   tokenStore.set({ access: data.access, refresh: data.refresh });
   return data.access;
 }
 
 api.interceptors.response.use(
-  (resp) => resp,
+  (resp) => {
+    loadingManager.stop();
+    return resp;
+  },
   async (error) => {
+    loadingManager.stop();
     const original = error.config;
     if (
       error.response?.status === 401 &&
       !original._retry &&
-      !original.url.endsWith('/auth/login/') &&
-      !original.url.endsWith('/auth/refresh/')
+      !original.url.endsWith("/auth/login/") &&
+      !original.url.endsWith("/auth/refresh/")
     ) {
       original._retry = true;
       try {
-        if (!refreshPromise) refreshPromise = refreshAccess().finally(() => { refreshPromise = null; });
+        if (!refreshPromise)
+          refreshPromise = refreshAccess().finally(() => {
+            refreshPromise = null;
+          });
         const newAccess = await refreshPromise;
         original.headers.Authorization = `Bearer ${newAccess}`;
         return api(original);
       } catch (refreshErr) {
         tokenStore.clear();
-        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-          window.location.assign('/login');
+        if (
+          typeof window !== "undefined" &&
+          !window.location.pathname.startsWith("/login")
+        ) {
+          window.location.assign("/login");
         }
         return Promise.reject(refreshErr);
       }
@@ -73,17 +90,21 @@ api.interceptors.response.use(
   },
 );
 
-export function extractError(err, fallback = 'Request failed.') {
+export function extractError(err, fallback = "Request failed.") {
   if (!err) return fallback;
   const data = err.response?.data;
   if (!data) return err.message || fallback;
-  if (typeof data === 'string') return data;
+  if (typeof data === "string") return data;
   if (data.detail) return data.detail;
   // DRF field errors come back as {field: [msg, ...]}
   const parts = [];
   for (const [k, v] of Object.entries(data)) {
-    const msg = Array.isArray(v) ? v.join(' ') : typeof v === 'string' ? v : JSON.stringify(v);
-    parts.push(k === 'non_field_errors' ? msg : `${k}: ${msg}`);
+    const msg = Array.isArray(v)
+      ? v.join(" ")
+      : typeof v === "string"
+        ? v
+        : JSON.stringify(v);
+    parts.push(k === "non_field_errors" ? msg : `${k}: ${msg}`);
   }
-  return parts.length ? parts.join(' • ') : fallback;
+  return parts.length ? parts.join(" • ") : fallback;
 }

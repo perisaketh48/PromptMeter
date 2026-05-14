@@ -1,28 +1,37 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
 
-import { AuthProvider } from './context/AuthContext.jsx';
-import { ThemeProvider } from './context/ThemeContext.jsx';
-import { ToastProvider } from './context/ToastContext.jsx';
+import { AuthProvider } from "./context/AuthContext.jsx";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
+import { ToastProvider } from "./context/ToastContext.jsx";
+import { LoadingProvider, useLoading } from "./context/LoadingContext.jsx";
+import { setLoadingManager } from "./api/client.js";
 
-import AppLayout from './layouts/AppLayout.jsx';
-import AuthLayout from './layouts/AuthLayout.jsx';
+import FunnyLoader from "./components/FunnyLoader.jsx";
 
-import { AdminRoute, GuestOnly, ProtectedRoute } from './routes/ProtectedRoute.jsx';
+import AppLayout from "./layouts/AppLayout.jsx";
+import AuthLayout from "./layouts/AuthLayout.jsx";
 
-import LoginPage from './pages/auth/LoginPage.jsx';
-import RegisterPage from './pages/auth/RegisterPage.jsx';
-import DashboardPage from './pages/DashboardPage.jsx';
-import EstimatorPage from './pages/EstimatorPage.jsx';
-import UsagePage from './pages/UsagePage.jsx';
-import BudgetsPage from './pages/BudgetsPage.jsx';
-import CredentialsPage from './pages/CredentialsPage.jsx';
-import SubscriptionPage from './pages/SubscriptionPage.jsx';
+import {
+  AdminRoute,
+  GuestOnly,
+  ProtectedRoute,
+} from "./routes/ProtectedRoute.jsx";
 
-import AdminDashboardPage from './pages/admin/AdminDashboardPage.jsx';
-import AdminUsersPage from './pages/admin/AdminUsersPage.jsx';
-import AdminProvidersPage from './pages/admin/AdminProvidersPage.jsx';
-import AdminModelsPage from './pages/admin/AdminModelsPage.jsx';
-import AdminFeedbackPage from './pages/admin/AdminFeedbackPage.jsx';
+import LoginPage from "./pages/auth/LoginPage.jsx";
+import RegisterPage from "./pages/auth/RegisterPage.jsx";
+import DashboardPage from "./pages/DashboardPage.jsx";
+import EstimatorPage from "./pages/EstimatorPage.jsx";
+import UsagePage from "./pages/UsagePage.jsx";
+import BudgetsPage from "./pages/BudgetsPage.jsx";
+import CredentialsPage from "./pages/CredentialsPage.jsx";
+import SubscriptionPage from "./pages/SubscriptionPage.jsx";
+
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage.jsx";
+import AdminUsersPage from "./pages/admin/AdminUsersPage.jsx";
+import AdminProvidersPage from "./pages/admin/AdminProvidersPage.jsx";
+import AdminModelsPage from "./pages/admin/AdminModelsPage.jsx";
+import AdminFeedbackPage from "./pages/admin/AdminFeedbackPage.jsx";
 
 function NotFound() {
   return (
@@ -35,9 +44,16 @@ function NotFound() {
   );
 }
 
-export default function App() {
+function AppContent() {
+  const { isLoading, startLoading, stopLoading } = useLoading();
+
+  useEffect(() => {
+    setLoadingManager({ start: startLoading, stop: stopLoading });
+  }, [startLoading, stopLoading]);
+
   return (
-    <ThemeProvider>
+    <>
+      {isLoading && <FunnyLoader />}
       <BrowserRouter>
         <AuthProvider>
           <ToastProvider>
@@ -61,9 +77,15 @@ export default function App() {
                   <Route element={<AdminRoute />}>
                     <Route path="/admin" element={<AdminDashboardPage />} />
                     <Route path="/admin/users" element={<AdminUsersPage />} />
-                    <Route path="/admin/providers" element={<AdminProvidersPage />} />
+                    <Route
+                      path="/admin/providers"
+                      element={<AdminProvidersPage />}
+                    />
                     <Route path="/admin/models" element={<AdminModelsPage />} />
-                    <Route path="/admin/feedback" element={<AdminFeedbackPage />} />
+                    <Route
+                      path="/admin/feedback"
+                      element={<AdminFeedbackPage />}
+                    />
                   </Route>
 
                   <Route path="*" element={<NotFound />} />
@@ -75,6 +97,16 @@ export default function App() {
           </ToastProvider>
         </AuthProvider>
       </BrowserRouter>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <LoadingProvider>
+        <AppContent />
+      </LoadingProvider>
     </ThemeProvider>
   );
 }
